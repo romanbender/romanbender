@@ -283,6 +283,29 @@
 
                 if (numObj.used) {
                     numDiv.classList.add('used');
+                } else {
+                    // Habilitar arrastrar con interact.js para números no usados
+                    interact(numDiv).draggable({
+                        enabled: true,
+                        listeners: {
+                            start(event) {
+                                // Evitar el desplazamiento de la página
+                                document.body.style.overflow = 'hidden';
+                            },
+                            move: dragMoveListener,
+                            end(event) {
+                                // Restaurar el desplazamiento de la página
+                                document.body.style.overflow = 'auto';
+                            }
+                        },
+                        inertia: true,
+                        modifiers: [
+                            interact.modifiers.restrict({
+                                restriction: 'body',
+                                endOnly: true
+                            })
+                        ]
+                    }).styleCursor(false); // Desactivar cambio de cursor por interact.js
                 }
 
                 numbersContainer.appendChild(numDiv);
@@ -290,36 +313,6 @@
 
             const targetDiv = document.getElementById('target-number');
             targetDiv.innerHTML = `<h2>Número objetivo: ${targetNumber}</h2>`;
-
-            // Habilitar arrastrar con interact.js solo para números no usados
-            interact('.number').draggable({
-                enabled: true,
-                listeners: {
-                    start(event) {
-                        // Evitar el desplazamiento de la página
-                        document.body.style.overflow = 'hidden';
-                    },
-                    move: dragMoveListener,
-                    end(event) {
-                        // Restaurar el desplazamiento de la página
-                        document.body.style.overflow = 'auto';
-                    }
-                },
-                inertia: true,
-                modifiers: [
-                    interact.modifiers.restrict({
-                        restriction: 'body',
-                        endOnly: true
-                    })
-                ]
-            }).styleCursor(false); // Desactivar cambio de cursor por interact.js
-
-            // Deshabilitar arrastrar en números usados
-            numbers.forEach(numObj => {
-                if (numObj.used) {
-                    interact(`#${numObj.id}`).draggable(false);
-                }
-            });
         }
 
         function dragMoveListener(event) {
