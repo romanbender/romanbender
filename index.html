@@ -287,10 +287,6 @@
 
     <script>
         // Código JavaScript
-        // ... (todo el código JavaScript existente, incluyendo las funciones y variables) ...
-
-        // Aquí va el código JavaScript del juego completo. Para mayor claridad, incluyo todo el código actualizado:
-
         let numbers = [];
         let targetNumber = 0;
         let timeRemaining = 60;
@@ -298,6 +294,10 @@
         let calculationLines = [];
         let gameEnded = false;
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        // Nueva estructura para rastrear dependencias
+        let resultDependencies = {};
+        let operandDependencies = {};
 
         function generateNumbers() {
             let solutionFound = false;
@@ -477,6 +477,10 @@
                 gameArea.appendChild(line);
             }
 
+            // Inicializar las dependencias de resultados
+            resultDependencies = {};
+            operandDependencies = {};
+
             // Habilitar las dropzones con interact.js
             interact('.dropzone').dropzone({
                 accept: '.number:not(.used), .result:not(.used)',
@@ -531,6 +535,12 @@
                     // Añadir evento para eliminar
                     addRemoveEvent(clonedElement, dropzoneElement);
 
+                    // Actualizar dependencias
+                    const line = calculationLines.find(line => line.dropzone1 === dropzoneElement || line.dropzone2 === dropzoneElement);
+                    if (line) {
+                        updateDependencies(line);
+                    }
+
                     // Resetear el elemento original
                     draggableElement.style.transform = 'none';
                     draggableElement.setAttribute('data-x', 0);
@@ -567,7 +577,6 @@
 
         function removeElement(element, dropzoneElement) {
             dropzoneElement.removeChild(element);
-            calculateResult();
 
             if (element.classList.contains('number') && !element.classList.contains('result')) {
                 resetNumberUsageFromElement(element);
@@ -576,6 +585,14 @@
             if (element.classList.contains('result')) {
                 resetResultUsageFromElement(element);
             }
+
+            // Actualizar dependencias
+            const line = calculationLines.find(line => line.dropzone1 === dropzoneElement || line.dropzone2 === dropzoneElement);
+            if (line) {
+                updateDependencies(line);
+            }
+
+            calculateResult();
 
             // Eliminar cálculos dependientes
             removeDependentCalculations();
@@ -705,13 +722,21 @@
                                 ]
                             });
                         }
+
+                        // Actualizar dependencias
+                        updateDependencies(line);
+
                     } else {
+                        // Si el resultado es inválido, eliminarlo
                         resultZone.textContent = '';
                         resultZone.dataset.value = '';
+                        removeResultUsage(resultZone);
                     }
                 } else {
+                    // Si faltan operandos, limpiar el resultado
                     resultZone.textContent = '';
                     resultZone.dataset.value = '';
+                    removeResultUsage(resultZone);
                 }
 
                 // Verificar si el resultado coincide con el número objetivo
@@ -731,6 +756,58 @@
                 }
             }
             return null;
+        }
+
+        function updateDependencies(line) {
+            const resultId = line.resultZone.id;
+            const operand1 = line.dropzone1.children[0];
+            const operand2 = line.dropzone2.children[0];
+
+            if (operand1 && operand2) {
+                const operand1Id = operand1.id.split('-clone')[0];
+                const operand2Id = operand2.id.split('-clone')[0];
+
+                resultDependencies[resultId] = [operand1Id, operand2Id];
+
+                // Actualizar dependencias inversas
+                addResultToOperandDependencies(operand1Id, resultId);
+                addResultToOperandDependencies(operand2Id, resultId);
+
+            } else {
+                // Si faltan operandos, eliminar dependencias
+                delete resultDependencies[resultId];
+            }
+        }
+
+        // Estructura para rastrear resultados dependientes de cada operando
+        function addResultToOperandDependencies(operandId, resultId) {
+            if (!operandDependencies[operandId]) {
+                operandDependencies[operandId] = [];
+            }
+            if (!operandDependencies[operandId].includes(resultId)) {
+                operandDependencies[operandId].push(resultId);
+            }
+        }
+
+        function removeResultUsage(resultElement) {
+            // Eliminar uso del resultado si estaba siendo utilizado
+            if (resultElement.classList.contains('used')) {
+                // Buscar y eliminar todas las instancias donde se usó este resultado
+                const resultId = resultElement.id;
+                const clonedResults = document.querySelectorAll(`[id^='${resultId}-clone']`);
+                clonedResults.forEach(clone => {
+                    const parentDropzone = clone.parentElement;
+                    if (parentDropzone) {
+                        parentDropzone.removeChild(clone);
+                        const line = calculationLines.find(line => line.dropzone1 === parentDropzone || line.dropzone2 === parentDropzone);
+                        if (line) {
+                            updateDependencies(line);
+                        }
+                    }
+                });
+                resultElement.classList.remove('used');
+                resultElement.removeAttribute('data-used');
+            }
         }
 
         function startTimer() {
@@ -856,30 +933,30 @@
             startTimer();
         }
 
-        // Función para eliminar cálculos dependientes
+        // Función para eliminar cálculos dependientes cuando se elimina un operando
         function removeDependentCalculations() {
-            calculationLines.forEach(line => {
-                const operand1 = getValueFromDropzone(line.dropzone1);
-                const operand2 = getValueFromDropzone(line.dropzone2);
+            // Revisar todos los operandos que han sido eliminados y sus dependencias
+            for (const operandId in operandDependencies) {
+                const operandElement = document.getElementById(operandId);
+                if (!operandElement || (operandElement.classList.contains('number') && !operandElement.parentElement)) {
+                    // Si el operando ha sido eliminado, eliminar sus resultados dependientes
+                    const dependentResults = operandDependencies[operandId];
+                    dependentResults.forEach(resultId => {
+                        const resultElement = document.getElementById(resultId);
+                        if (resultElement) {
+                            // Eliminar el resultado de su lugar original
+                            resultElement.textContent = '';
+                            resultElement.dataset.value = '';
+                            removeResultUsage(resultElement);
 
-                // Si alguno de los operandos es nulo, eliminar el resultado y resetear
-                if (operand1 === null || operand2 === null) {
-                    // Si el resultado estaba siendo utilizado en otro lugar, eliminarlo
-                    if (line.resultZone.classList.contains('used')) {
-                        // Buscar y resetear todas las instancias donde se usó este resultado
-                        const resultId = line.resultZone.id;
-                        const clonedResults = document.querySelectorAll(`[id^='${resultId}-clone']`);
-                        clonedResults.forEach(clone => {
-                            const parentDropzone = clone.parentElement;
-                            parentDropzone.removeChild(clone);
-                        });
-                        line.resultZone.classList.remove('used');
-                    }
-
-                    line.resultZone.textContent = '';
-                    line.resultZone.dataset.value = '';
+                            // Eliminar dependencias asociadas
+                            delete resultDependencies[resultId];
+                        }
+                    });
+                    // Eliminar dependencias del operando
+                    delete operandDependencies[operandId];
                 }
-            });
+            }
         }
 
         window.onload = function() {
