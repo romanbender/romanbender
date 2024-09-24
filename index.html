@@ -1,0 +1,633 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2022.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="es"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Juego de Cálculo&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Estilos CSS */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: Arial, sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>#top-section {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f0f0f0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>#numbers-container, #target-number {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex-wrap: wrap;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.number, .result {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px solid #000;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: move;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 60px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 60px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-sizing: border-box;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.number.used {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #cccccc;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.result.used {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #cccccc;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: default;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>#game-area {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.calculation-line {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 10px 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dropzone {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px dashed #ccc;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 64px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 64px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: inline-flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-sizing: border-box;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.operator-button {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #007BFF;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #fff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 60px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 60px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.equals-sign {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 5px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>#bottom-section {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>#timer {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>#solution-section {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: green;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 600px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 auto;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="top-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1&gt;Juego de Cálculo&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="numbers-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Números iniciales aparecerán aquí --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="target-number"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Número objetivo aparecerá aquí --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="game-area"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Aquí irán las líneas de cálculo --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="bottom-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="reset-button"&gt;Reiniciar Juego&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="timer"&gt;Tiempo restante: &lt;span id="time-remaining"&gt;60&lt;/span&gt; segundos&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="solution-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- La solución o mensaje de felicitación aparecerá aquí --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Código JavaScript</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let numbers = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let targetNumber = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let timeRemaining = 60;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let timerInterval;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let calculationLines = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let gameEnded = false;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function generateNumbers() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let solutionFound = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let maxAttempts = 100; // Para evitar bucles infinitos</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let attempts = 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>while (!solutionFound &amp;&amp; attempts &lt; maxAttempts) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>attempts++;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>numbers = [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Generar los dos números especiales (10 o 50)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let specialNumbers = generateSpecialNumbers();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>numbers.push(...specialNumbers);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Generar los otros cuatro números aleatorios del 1 al 10</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; 4; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>numbers.push({</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>value: Math.floor(Math.random() * 10) + 1, // Números del 1 al 10</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>used: false,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>id: `number-${i + 2}` // IDs únicos</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Ajustar el número objetivo para que sea acorde con los números disponibles</p>
+<p class="p1"><span class="Apple-converted-space">                </span>targetNumber = Math.floor(Math.random() * 999) + 1; // Número objetivo entre 1 y 999</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Verificar si existe una solución</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let solution = findSolution(numbers.map(n =&gt; n.value), targetNumber);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (solution) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>solutionFound = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!solutionFound) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>alert('No se pudo encontrar una combinación de números con solución después de varios intentos. Intenta reiniciar el juego.');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>displayNumbers();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('solution-section').innerHTML = ''; // Limpiar solución previa</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function generateSpecialNumbers() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let combinations = [</p>
+<p class="p1"><span class="Apple-converted-space">                </span>[10, 10],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>[10, 50],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>[50, 50]</p>
+<p class="p1"><span class="Apple-converted-space">            </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Seleccionar aleatoriamente una de las combinaciones</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let selectedCombination = combinations[Math.floor(Math.random() * combinations.length)];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Crear objetos de números especiales</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let specialNumbers = selectedCombination.map((value, index) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>value: value,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>used: false,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>id: `special-number-${index}`</p>
+<p class="p1"><span class="Apple-converted-space">                </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>return specialNumbers;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function displayNumbers() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const numbersContainer = document.getElementById('numbers-container');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>numbersContainer.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>numbers.forEach(numObj =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const numDiv = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>numDiv.classList.add('number');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>numDiv.textContent = numObj.value;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>numDiv.draggable = !numObj.used &amp;&amp; !gameEnded;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>numDiv.id = numObj.id;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>numDiv.dataset.value = numObj.value;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>numDiv.addEventListener('dragstart', dragStart);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (numObj.used) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>numDiv.classList.add('used');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>numbersContainer.appendChild(numDiv);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const targetDiv = document.getElementById('target-number');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>targetDiv.innerHTML = `&lt;h2&gt;Número objetivo: ${targetNumber}&lt;/h2&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Arrastrar y soltar</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function dragStart(event) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (gameEnded) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>event.dataTransfer.setData('text/plain', event.target.id);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function allowDrop(event) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>event.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function dropNumber(event) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>event.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (gameEnded) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const id = event.dataTransfer.getData('text');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const draggedElement = document.getElementById(id);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Evitar que un elemento sea colocado más de una vez</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (event.target.classList.contains('dropzone') &amp;&amp; event.target.children.length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const clonedElement = draggedElement.cloneNode(true);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>clonedElement.id = `${draggedElement.id}-clone-${Math.random()}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>clonedElement.style.margin = '0'; // Asegurar que no tenga margen</p>
+<p class="p1"><span class="Apple-converted-space">                </span>clonedElement.style.padding = '0'; // Asegurar que no tenga padding</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// **Aquí está la modificación importante**</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Hacer que el elemento clonado no sea arrastrable</p>
+<p class="p1"><span class="Apple-converted-space">                </span>clonedElement.draggable = false;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>event.target.appendChild(clonedElement);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Si es un número original, marcarlo como usado</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (draggedElement.classList.contains('number') &amp;&amp; !draggedElement.classList.contains('result')) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>markNumberAsUsed(id);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Si es un resultado, marcarlo como usado</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (draggedElement.classList.contains('result')) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>markResultAsUsed(id);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Añadir eventos al elemento clonado</p>
+<p class="p1"><span class="Apple-converted-space">                </span>clonedElement.addEventListener('dblclick', function() {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>event.target.removeChild(clonedElement);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>calculateResult();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (draggedElement.classList.contains('number') &amp;&amp; !draggedElement.classList.contains('result')) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>resetNumberUsageFromElement(clonedElement);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (draggedElement.classList.contains('result')) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>resetResultUsageFromElement(clonedElement);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Eliminar cálculos dependientes</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>removeDependentCalculations();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>calculateResult();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function markNumberAsUsed(id) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const numObj = numbers.find(num =&gt; num.id === id);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (numObj) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>numObj.used = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>displayNumbers();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function resetNumberUsageFromElement(element) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const originalId = element.id.split('-clone')[0];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const numObj = numbers.find(num =&gt; num.id === originalId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (numObj) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>numObj.used = false;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>displayNumbers();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function markResultAsUsed(id) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const resultElement = document.getElementById(id);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (resultElement &amp;&amp; !resultElement.classList.contains('used')) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>resultElement.classList.add('used');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>resultElement.draggable = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function resetResultUsageFromElement(element) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const originalId = element.id.split('-clone')[0];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const resultElement = document.getElementById(originalId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (resultElement) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>resultElement.classList.remove('used');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>resultElement.draggable = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupGameArea() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const gameArea = document.getElementById('game-area');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gameArea.innerHTML = '';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>calculationLines = [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Puedes ajustar el número de líneas si lo deseas</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt; 6; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const line = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>line.classList.add('calculation-line');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Primer operando</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const dropzone1 = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dropzone1.classList.add('dropzone');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dropzone1.addEventListener('dragover', allowDrop);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dropzone1.addEventListener('drop', dropNumber);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>line.appendChild(dropzone1);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Operador</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const operatorButton = document.createElement('button');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>operatorButton.classList.add('operator-button');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>operatorButton.textContent = '+';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>operatorButton.dataset.operator = '+';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>operatorButton.addEventListener('click', changeOperator);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>operatorButton.addEventListener('click', calculateResult);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>line.appendChild(operatorButton);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Segundo operando</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const dropzone2 = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dropzone2.classList.add('dropzone');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dropzone2.addEventListener('dragover', allowDrop);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dropzone2.addEventListener('drop', dropNumber);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>line.appendChild(dropzone2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Signo igual</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const equalsSign = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>equalsSign.classList.add('equals-sign');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>equalsSign.textContent = '=';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>line.appendChild(equalsSign);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Resultado</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const resultZone = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>resultZone.classList.add('result');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>resultZone.id = `result-${i}-${Math.random()}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>resultZone.draggable = false; // No se puede arrastrar hasta que tenga un valor</p>
+<p class="p1"><span class="Apple-converted-space">                </span>line.appendChild(resultZone);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>calculationLines.push({</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>dropzone1: dropzone1,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>dropzone2: dropzone2,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>operatorButton: operatorButton,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>resultZone: resultZone,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>used: false // Añadido para rastrear si el resultado ha sido utilizado</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>gameArea.appendChild(line);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function changeOperator(event) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (gameEnded) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const operators = ['+', '-', '×', '÷'];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let currentOperator = event.target.dataset.operator;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let index = operators.indexOf(currentOperator);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>index = (index + 1) % operators.length;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>event.target.textContent = operators[index];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>event.target.dataset.operator = operators[index];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>calculateResult();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function calculateResult() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>calculationLines.forEach(line =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const operand1 = getValueFromDropzone(line.dropzone1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const operand2 = getValueFromDropzone(line.dropzone2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const operator = line.operatorButton.dataset.operator;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const resultZone = line.resultZone;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (operand1 !== null &amp;&amp; operand2 !== null) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let result;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>switch (operator) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>case '+':</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>result = operand1 + operand2;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>break;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>case '-':</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>result = operand1 - operand2;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>break;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>case '×':</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>result = operand1 * operand2;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>break;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>case '÷':</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (operand2 !== 0 &amp;&amp; operand1 % operand2 === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>result = operand1 / operand2;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>result = null;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>break;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (result !== null) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>resultZone.textContent = result;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>resultZone.dataset.value = result;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// Habilitar arrastrar solo si el resultado no ha sido usado</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (!resultZone.classList.contains('used')) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>resultZone.draggable = true;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>resultZone.addEventListener('dragstart', dragStart);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// Verificar si el resultado coincide con el número objetivo</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (result === targetNumber &amp;&amp; !gameEnded) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>gameEnded = true;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>clearInterval(timerInterval);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>showSuccessMessage();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>resultZone.textContent = '';</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>resultZone.dataset.value = '';</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>resultZone.draggable = false;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>resultZone.textContent = '';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>resultZone.dataset.value = '';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>resultZone.draggable = false;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function getValueFromDropzone(dropzone) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (dropzone.children.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const child = dropzone.children[0];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if ((child.classList.contains('number') || child.classList.contains('result')) &amp;&amp; !child.classList.contains('used')) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return parseFloat(child.textContent);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return null;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function startTimer() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>timeRemaining = 60;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('time-remaining').textContent = timeRemaining;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>timerInterval = setInterval(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>timeRemaining--;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('time-remaining').textContent = timeRemaining;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (timeRemaining &lt;= 0 &amp;&amp; !gameEnded) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>clearInterval(timerInterval);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>alert('¡Tiempo agotado!');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>showSolution();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function showSolution() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const solutionSection = document.getElementById('solution-section');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const solution = findSolution(numbers.map(n =&gt; n.value), targetNumber);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (solution) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>solutionSection.innerHTML = `&lt;strong&gt;Una posible solución:&lt;/strong&gt;${formatSolutionSteps(solution.steps)}`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>solutionSection.innerHTML = `&lt;strong&gt;No se encontró una solución.&lt;/strong&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function formatSolutionSteps(steps) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let html = '&lt;ol&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steps.forEach(step =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>html += `&lt;li&gt;${step}&lt;/li&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>html += '&lt;/ol&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return html;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function findSolution(numbersArray, target) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const operators = ['+', '-', '*', '/'];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function helper(nums, exprs, steps) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (nums.length === 1) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (Math.abs(nums[0] - target) &lt; 0.0001) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>return { expression: exprs[0], steps: steps };</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>return null;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; nums.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let j = 0; j &lt; nums.length; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (i !== j) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const restNums = nums.filter((_, idx) =&gt; idx !== i &amp;&amp; idx !== j);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const restExprs = exprs.filter((_, idx) =&gt; idx !== i &amp;&amp; idx !== j);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>for (const op of operators) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>let a = nums[i];</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>let b = nums[j];</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>let exprA = exprs[i];</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>let exprB = exprs[j];</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>let result;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>let expr;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>let step;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>if (op === '+') {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>result = a + b;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>expr = `(${exprA} + ${exprB})`;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>step = `${exprA} + ${exprB} = ${result}`;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>} else if (op === '-') {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>result = a - b;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>expr = `(${exprA} - ${exprB})`;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>step = `${exprA} - ${exprB} = ${result}`;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>} else if (op === '*') {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>result = a * b;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>expr = `(${exprA} × ${exprB})`;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>step = `${exprA} × ${exprB} = ${result}`;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>} else if (op === '/') {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>if (b === 0 || a % b !== 0) continue;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>result = a / b;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>expr = `(${exprA} ÷ ${exprB})`;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>step = `${exprA} ÷ ${exprB} = ${result}`;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>const newNums = [result, ...restNums];</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>const newExprs = [expr, ...restExprs];</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>const newSteps = [...steps, step];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>const finalResult = helper(newNums, newExprs, newSteps);</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>if (finalResult) {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>return finalResult;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const initialExprs = numbersArray.map(n =&gt; n.toString());</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return helper(numbersArray, initialExprs, []);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function showSuccessMessage() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const solutionSection = document.getElementById('solution-section');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>solutionSection.innerHTML = `&lt;strong&gt;¡Felicidades! Has alcanzado el número objetivo ${targetNumber}.&lt;/strong&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>disableAllInteractions();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function disableAllInteractions() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Desactivar drag and drop</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.number, .result').forEach(elem =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>elem.draggable = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Desactivar botones de operador</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.operator-button').forEach(button =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>button.disabled = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function resetGame() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearInterval(timerInterval);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gameEnded = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>generateNumbers();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupGameArea();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>startTimer();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Función para eliminar cálculos dependientes</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function removeDependentCalculations() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>calculationLines.forEach(line =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const operand1 = getValueFromDropzone(line.dropzone1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const operand2 = getValueFromDropzone(line.dropzone2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Si alguno de los operandos es nulo, eliminar el resultado y resetear</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (operand1 === null || operand2 === null) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Si el resultado estaba siendo utilizado en otro lugar, eliminarlo</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (line.resultZone.classList.contains('used')) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// Buscar y resetear todas las instancias donde se usó este resultado</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const resultId = line.resultZone.id;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const clonedResults = document.querySelectorAll(`[id^='${resultId}-clone']`);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>clonedResults.forEach(clone =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const parentDropzone = clone.parentElement;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>parentDropzone.removeChild(clone);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>line.resultZone.classList.remove('used');</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>line.resultZone.draggable = false;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>line.resultZone.textContent = '';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>line.resultZone.dataset.value = '';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>line.resultZone.draggable = false;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.onload = function() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>generateNumbers();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupGameArea();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>startTimer();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('reset-button').addEventListener('click', resetGame);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
