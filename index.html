@@ -171,6 +171,62 @@
             font-size: 4vh;
             margin: 1vh 0;
         }
+
+        /* Estilos para la ventana modal */
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none; /* Oculto por defecto */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #modal-content {
+            background-color: #fff;
+            padding: 2vh 2vw;
+            max-width: 80vw;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 1vh;
+            text-align: left;
+            position: relative;
+        }
+
+        #modal-content h2 {
+            margin-top: 0;
+            font-size: 4vh;
+        }
+
+        #modal-content p {
+            font-size: 2.5vh;
+            line-height: 1.5;
+        }
+
+        #close-modal {
+            position: absolute;
+            top: 1vh;
+            right: 1vw;
+            background-color: transparent;
+            border: none;
+            font-size: 4vh;
+            cursor: pointer;
+        }
+
+        #instructions-button {
+            font-size: 2.5vh;
+            padding: 1vh 2vh;
+            margin-bottom: 1vh;
+        }
+
+        #modal-content ul {
+            list-style-type: disc;
+            margin-left: 2vh;
+        }
     </style>
 
     <!-- Incluir interact.js -->
@@ -191,14 +247,50 @@
     </div>
     <div id="bottom-section">
         <button id="reset-button">Reiniciar Juego</button>
+        <button id="instructions-button">Instrucciones</button>
         <div id="timer">Tiempo restante: <span id="time-remaining">60</span> segundos</div>
     </div>
     <div id="solution-section">
         <!-- La solución o mensaje de felicitación aparecerá aquí -->
     </div>
 
+    <!-- Ventana Modal de Instrucciones -->
+    <div id="modal-overlay">
+        <div id="modal-content">
+            <button id="close-modal">&times;</button>
+            <h2>Instrucciones del Juego</h2>
+            <p>
+                El objetivo del juego es utilizar los números proporcionados para
+                alcanzar el número objetivo mediante operaciones matemáticas básicas:
+                suma (+), resta (−), multiplicación (×) y división (÷).
+            </p>
+            <p>
+                <strong>Reglas:</strong>
+            </p>
+            <ul>
+                <li>Cada número puede ser utilizado una sola vez. Una vez usado,
+                    aparecerá atenuado y no podrá ser seleccionado nuevamente a menos
+                    que lo elimines de la operación.</li>
+                <li>Puedes combinar los números en cualquier orden.</li>
+                <li>Las divisiones deben ser exactas; no se permiten resultados con
+                    decimales o fracciones.</li>
+                <li>Para eliminar un número o resultado de una casilla, haz doble clic
+                    (en computadora) o mantén presionado durante 600 ms (en dispositivos
+                    táctiles).</li>
+                <li>Tienes un tiempo limitado de 60 segundos para encontrar la solución.</li>
+            </ul>
+            <p>
+                ¡Buena suerte y disfruta del desafío!
+            </p>
+        </div>
+    </div>
+
     <script>
         // Código JavaScript
+        // ... (todo el código JavaScript existente, incluyendo las funciones y variables) ...
+
+        // Aquí va el código JavaScript del juego completo. Para mayor claridad, incluyo todo el código actualizado:
+
         let numbers = [];
         let targetNumber = 0;
         let timeRemaining = 60;
@@ -803,6 +895,22 @@
                 event.preventDefault();
             }
         }, { passive: false });
+
+        // Funciones para abrir y cerrar la ventana modal
+        document.getElementById('instructions-button').addEventListener('click', function() {
+            document.getElementById('modal-overlay').style.display = 'flex';
+        });
+
+        document.getElementById('close-modal').addEventListener('click', function() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        });
+
+        // Cerrar la ventana modal al hacer clic fuera del contenido
+        document.getElementById('modal-overlay').addEventListener('click', function(event) {
+            if (event.target === document.getElementById('modal-overlay')) {
+                document.getElementById('modal-overlay').style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
