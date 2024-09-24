@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Juego de Cálculo</title>
+    <!-- Meta Viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         /* Estilos CSS */
         body {
@@ -10,6 +12,7 @@
             text-align: center;
             margin: 0;
             padding: 0;
+            overflow-x: hidden; /* Evitar desplazamiento horizontal */
         }
 
         #top-section {
@@ -71,6 +74,7 @@
             justify-content: center;
             align-items: center;
             box-sizing: border-box;
+            touch-action: none; /* Evitar conflictos en móviles */
         }
 
         .operator-button {
@@ -84,6 +88,12 @@
             font-size: 24px;
             margin: 5px;
             user-select: none;
+            touch-action: manipulation;
+        }
+
+        .operator-button:disabled {
+            background-color: #cccccc;
+            cursor: default;
         }
 
         .equals-sign {
@@ -111,6 +121,41 @@
 
         .interact-dragging {
             opacity: 0.5;
+        }
+
+        /* Estilos para pantallas de hasta 600px de ancho */
+        @media (max-width: 600px) {
+            .number, .result, .operator-button, .dropzone {
+                width: 80px;
+                height: 80px;
+                font-size: 28px;
+            }
+
+            .operator-button {
+                width: 80px;
+                height: 80px;
+            }
+
+            .dropzone {
+                width: 84px; /* Considerando el borde */
+                height: 84px;
+            }
+
+            #timer {
+                font-size: 20px;
+            }
+
+            .equals-sign {
+                font-size: 28px;
+            }
+
+            #top-section h1 {
+                font-size: 24px;
+            }
+
+            #target-number h2 {
+                font-size: 24px;
+            }
         }
     </style>
 
@@ -234,7 +279,17 @@
             // Habilitar arrastrar con interact.js
             interact('.number').draggable({
                 enabled: true,
-                listeners: { move: dragMoveListener },
+                listeners: {
+                    start(event) {
+                        // Evitar el desplazamiento de la página
+                        document.body.style.overflow = 'hidden';
+                    },
+                    move: dragMoveListener,
+                    end(event) {
+                        // Restaurar el desplazamiento de la página
+                        document.body.style.overflow = 'auto';
+                    }
+                },
                 inertia: true,
                 modifiers: [
                     interact.modifiers.restrict({
@@ -475,7 +530,17 @@
                         if (!resultZone.classList.contains('used')) {
                             interact(resultZone).draggable({
                                 enabled: true,
-                                listeners: { move: dragMoveListener },
+                                listeners: {
+                                    start(event) {
+                                        // Evitar el desplazamiento de la página
+                                        document.body.style.overflow = 'hidden';
+                                    },
+                                    move: dragMoveListener,
+                                    end(event) {
+                                        // Restaurar el desplazamiento de la página
+                                        document.body.style.overflow = 'auto';
+                                    }
+                                },
                                 inertia: true,
                                 modifiers: [
                                     interact.modifiers.restrict({
@@ -668,6 +733,13 @@
             startTimer();
             document.getElementById('reset-button').addEventListener('click', resetGame);
         };
+
+        // Prevenir el desplazamiento de la página al arrastrar
+        document.addEventListener('touchmove', function(event) {
+            if (event.target.classList.contains('interact-dragging')) {
+                event.preventDefault();
+            }
+        }, { passive: false });
     </script>
 </body>
 </html>
