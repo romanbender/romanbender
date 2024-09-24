@@ -38,6 +38,8 @@
             align-items: center;
             font-size: 24px;
             box-sizing: border-box;
+            user-select: none;
+            touch-action: none; /* Evitar conflictos en móviles */
         }
 
         .number.used {
@@ -81,6 +83,7 @@
             cursor: pointer;
             font-size: 24px;
             margin: 5px;
+            user-select: none;
         }
 
         .equals-sign {
@@ -104,6 +107,10 @@
             text-align: center;
             max-width: 600px;
             margin: 0 auto;
+        }
+
+        .interact-dragging {
+            opacity: 0.5;
         }
     </style>
 
@@ -240,8 +247,20 @@
 
         function dragMoveListener(event) {
             const target = event.target;
-            target.style.transform = `translate(${event.pageX - target.offsetWidth / 2}px, ${event.pageY - target.offsetHeight / 2}px)`;
+
+            // Obtener la posición actual desde los atributos data-x y data-y
+            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+            // Aplicar la transformación de traducción
+            target.style.transform = `translate(${x}px, ${y}px)`;
+
+            // Actualizar los atributos de posición
+            target.setAttribute('data-x', x);
+            target.setAttribute('data-y', y);
         }
+
+        window.dragMoveListener = dragMoveListener; // Necesario para interact.js
 
         function setupGameArea() {
             const gameArea = document.getElementById('game-area');
@@ -301,6 +320,19 @@
             interact('.dropzone').dropzone({
                 accept: '.number, .result',
                 overlap: 0.75,
+                ondropactivate: function (event) {
+                    event.target.classList.add('drop-active');
+                },
+                ondragenter: function (event) {
+                    event.target.classList.add('drop-target');
+                },
+                ondragleave: function (event) {
+                    event.target.classList.remove('drop-target');
+                },
+                ondropdeactivate: function (event) {
+                    event.target.classList.remove('drop-active');
+                    event.target.classList.remove('drop-target');
+                },
                 ondrop: function(event) {
                     const draggableElement = event.relatedTarget;
                     const dropzoneElement = event.target;
@@ -319,6 +351,11 @@
                     clonedElement.style.position = 'static';
                     clonedElement.draggable = false; // No arrastrable desde la dropzone
                     clonedElement.classList.remove('interact-dragging');
+
+                    // Resetear posición del elemento clonado
+                    clonedElement.setAttribute('data-x', 0);
+                    clonedElement.setAttribute('data-y', 0);
+                    clonedElement.style.transform = 'none';
 
                     dropzoneElement.appendChild(clonedElement);
 
@@ -347,6 +384,11 @@
                         // Eliminar cálculos dependientes
                         removeDependentCalculations();
                     });
+
+                    // Resetear el elemento original
+                    draggableElement.style.transform = 'none';
+                    draggableElement.setAttribute('data-x', 0);
+                    draggableElement.setAttribute('data-y', 0);
 
                     calculateResult();
                 }
