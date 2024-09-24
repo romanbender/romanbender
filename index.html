@@ -106,6 +106,9 @@
             margin: 0 auto;
         }
     </style>
+
+    <!-- Incluir interact.js -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
 </head>
 <body>
     <div id="top-section">
@@ -207,10 +210,9 @@
                 const numDiv = document.createElement('div');
                 numDiv.classList.add('number');
                 numDiv.textContent = numObj.value;
-                numDiv.draggable = !numObj.used && !gameEnded;
+                numDiv.draggable = false; // Desactivar draggable nativo
                 numDiv.id = numObj.id;
                 numDiv.dataset.value = numObj.value;
-                numDiv.addEventListener('dragstart', dragStart);
 
                 if (numObj.used) {
                     numDiv.classList.add('used');
@@ -221,101 +223,24 @@
 
             const targetDiv = document.getElementById('target-number');
             targetDiv.innerHTML = `<h2>Número objetivo: ${targetNumber}</h2>`;
+
+            // Habilitar arrastrar con interact.js
+            interact('.number').draggable({
+                enabled: true,
+                listeners: { move: dragMoveListener },
+                inertia: true,
+                modifiers: [
+                    interact.modifiers.restrict({
+                        restriction: 'body',
+                        endOnly: true
+                    })
+                ]
+            });
         }
 
-        // Arrastrar y soltar
-        function dragStart(event) {
-            if (gameEnded) return;
-            event.dataTransfer.setData('text/plain', event.target.id);
-        }
-
-        function allowDrop(event) {
-            event.preventDefault();
-        }
-
-        function dropNumber(event) {
-            event.preventDefault();
-            if (gameEnded) return;
-
-            const id = event.dataTransfer.getData('text');
-            const draggedElement = document.getElementById(id);
-
-            // Evitar que un elemento sea colocado más de una vez
-            if (event.target.classList.contains('dropzone') && event.target.children.length === 0) {
-                const clonedElement = draggedElement.cloneNode(true);
-                clonedElement.id = `${draggedElement.id}-clone-${Math.random()}`;
-                clonedElement.style.margin = '0'; // Asegurar que no tenga margen
-                clonedElement.style.padding = '0'; // Asegurar que no tenga padding
-
-                // **Aquí está la modificación importante**
-                // Hacer que el elemento clonado no sea arrastrable
-                clonedElement.draggable = false;
-
-                event.target.appendChild(clonedElement);
-
-                // Si es un número original, marcarlo como usado
-                if (draggedElement.classList.contains('number') && !draggedElement.classList.contains('result')) {
-                    markNumberAsUsed(id);
-                }
-
-                // Si es un resultado, marcarlo como usado
-                if (draggedElement.classList.contains('result')) {
-                    markResultAsUsed(id);
-                }
-
-                // Añadir eventos al elemento clonado
-                clonedElement.addEventListener('dblclick', function() {
-                    event.target.removeChild(clonedElement);
-                    calculateResult();
-
-                    if (draggedElement.classList.contains('number') && !draggedElement.classList.contains('result')) {
-                        resetNumberUsageFromElement(clonedElement);
-                    }
-
-                    if (draggedElement.classList.contains('result')) {
-                        resetResultUsageFromElement(clonedElement);
-                    }
-
-                    // Eliminar cálculos dependientes
-                    removeDependentCalculations();
-                });
-            }
-
-            calculateResult();
-        }
-
-        function markNumberAsUsed(id) {
-            const numObj = numbers.find(num => num.id === id);
-            if (numObj) {
-                numObj.used = true;
-                displayNumbers();
-            }
-        }
-
-        function resetNumberUsageFromElement(element) {
-            const originalId = element.id.split('-clone')[0];
-            const numObj = numbers.find(num => num.id === originalId);
-            if (numObj) {
-                numObj.used = false;
-                displayNumbers();
-            }
-        }
-
-        function markResultAsUsed(id) {
-            const resultElement = document.getElementById(id);
-            if (resultElement && !resultElement.classList.contains('used')) {
-                resultElement.classList.add('used');
-                resultElement.draggable = false;
-            }
-        }
-
-        function resetResultUsageFromElement(element) {
-            const originalId = element.id.split('-clone')[0];
-            const resultElement = document.getElementById(originalId);
-            if (resultElement) {
-                resultElement.classList.remove('used');
-                resultElement.draggable = true;
-            }
+        function dragMoveListener(event) {
+            const target = event.target;
+            target.style.transform = `translate(${event.pageX - target.offsetWidth / 2}px, ${event.pageY - target.offsetHeight / 2}px)`;
         }
 
         function setupGameArea() {
@@ -332,8 +257,6 @@
                 // Primer operando
                 const dropzone1 = document.createElement('div');
                 dropzone1.classList.add('dropzone');
-                dropzone1.addEventListener('dragover', allowDrop);
-                dropzone1.addEventListener('drop', dropNumber);
                 line.appendChild(dropzone1);
 
                 // Operador
@@ -348,8 +271,6 @@
                 // Segundo operando
                 const dropzone2 = document.createElement('div');
                 dropzone2.classList.add('dropzone');
-                dropzone2.addEventListener('dragover', allowDrop);
-                dropzone2.addEventListener('drop', dropNumber);
                 line.appendChild(dropzone2);
 
                 // Signo igual
@@ -375,6 +296,61 @@
 
                 gameArea.appendChild(line);
             }
+
+            // Habilitar las dropzones con interact.js
+            interact('.dropzone').dropzone({
+                accept: '.number, .result',
+                overlap: 0.75,
+                ondrop: function(event) {
+                    const draggableElement = event.relatedTarget;
+                    const dropzoneElement = event.target;
+
+                    // Evitar múltiples elementos en una dropzone
+                    if (dropzoneElement.children.length > 0) {
+                        return;
+                    }
+
+                    // Clonar el elemento arrastrado
+                    const clonedElement = draggableElement.cloneNode(true);
+                    clonedElement.id = `${draggableElement.id}-clone-${Math.random()}`;
+                    clonedElement.style.margin = '0';
+                    clonedElement.style.padding = '0';
+                    clonedElement.style.transform = 'none';
+                    clonedElement.style.position = 'static';
+                    clonedElement.draggable = false; // No arrastrable desde la dropzone
+                    clonedElement.classList.remove('interact-dragging');
+
+                    dropzoneElement.appendChild(clonedElement);
+
+                    // Marcar el número o resultado original como usado
+                    if (draggableElement.classList.contains('number') && !draggableElement.classList.contains('result')) {
+                        markNumberAsUsed(draggableElement.id);
+                    }
+
+                    if (draggableElement.classList.contains('result')) {
+                        markResultAsUsed(draggableElement.id);
+                    }
+
+                    // Añadir evento para eliminar al hacer doble clic
+                    clonedElement.addEventListener('dblclick', function() {
+                        dropzoneElement.removeChild(clonedElement);
+                        calculateResult();
+
+                        if (draggableElement.classList.contains('number') && !draggableElement.classList.contains('result')) {
+                            resetNumberUsageFromElement(clonedElement);
+                        }
+
+                        if (draggableElement.classList.contains('result')) {
+                            resetResultUsageFromElement(clonedElement);
+                        }
+
+                        // Eliminar cálculos dependientes
+                        removeDependentCalculations();
+                    });
+
+                    calculateResult();
+                }
+            });
         }
 
         function changeOperator(event) {
@@ -386,6 +362,40 @@
             event.target.textContent = operators[index];
             event.target.dataset.operator = operators[index];
             calculateResult();
+        }
+
+        function markNumberAsUsed(id) {
+            const numObj = numbers.find(num => num.id === id);
+            if (numObj) {
+                numObj.used = true;
+                displayNumbers();
+            }
+        }
+
+        function resetNumberUsageFromElement(element) {
+            const originalId = element.id.split('-clone')[0];
+            const numObj = numbers.find(num => num.id === originalId);
+            if (numObj) {
+                numObj.used = false;
+                displayNumbers();
+            }
+        }
+
+        function markResultAsUsed(id) {
+            const resultElement = document.getElementById(id);
+            if (resultElement && !resultElement.classList.contains('used')) {
+                resultElement.classList.add('used');
+                resultElement.setAttribute('data-used', 'true');
+            }
+        }
+
+        function resetResultUsageFromElement(element) {
+            const originalId = element.id.split('-clone')[0];
+            const resultElement = document.getElementById(originalId);
+            if (resultElement) {
+                resultElement.classList.remove('used');
+                resultElement.removeAttribute('data-used');
+            }
         }
 
         function calculateResult() {
@@ -419,10 +429,19 @@
                         resultZone.textContent = result;
                         resultZone.dataset.value = result;
 
-                        // Habilitar arrastrar solo si el resultado no ha sido usado
+                        // Habilitar arrastrar con interact.js si no ha sido usado
                         if (!resultZone.classList.contains('used')) {
-                            resultZone.draggable = true;
-                            resultZone.addEventListener('dragstart', dragStart);
+                            interact(resultZone).draggable({
+                                enabled: true,
+                                listeners: { move: dragMoveListener },
+                                inertia: true,
+                                modifiers: [
+                                    interact.modifiers.restrict({
+                                        restriction: 'body',
+                                        endOnly: true
+                                    })
+                                ]
+                            });
                         }
 
                         // Verificar si el resultado coincide con el número objetivo
@@ -434,12 +453,10 @@
                     } else {
                         resultZone.textContent = '';
                         resultZone.dataset.value = '';
-                        resultZone.draggable = false;
                     }
                 } else {
                     resultZone.textContent = '';
                     resultZone.dataset.value = '';
-                    resultZone.draggable = false;
                 }
             });
         }
@@ -560,9 +577,8 @@
 
         function disableAllInteractions() {
             // Desactivar drag and drop
-            document.querySelectorAll('.number, .result').forEach(elem => {
-                elem.draggable = false;
-            });
+            interact('.number').draggable(false);
+            interact('.result').draggable(false);
 
             // Desactivar botones de operador
             document.querySelectorAll('.operator-button').forEach(button => {
@@ -596,12 +612,10 @@
                             parentDropzone.removeChild(clone);
                         });
                         line.resultZone.classList.remove('used');
-                        line.resultZone.draggable = false;
                     }
 
                     line.resultZone.textContent = '';
                     line.resultZone.dataset.value = '';
-                    line.resultZone.draggable = false;
                 }
             });
         }
