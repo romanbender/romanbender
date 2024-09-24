@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Juego de Cálculo</title>
+    <style>
+        /* Estilos CSS */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        #top-section {
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+
+        #numbers-container, #target-number {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 10px;
+        }
+
+        .number, .result {
+            background-color: #ffffff;
+            border: 2px solid #000;
+            border-radius: 5px;
+            margin: 0;
+            padding: 0;
+            cursor: move;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-sizing: border-box;
+        }
+
+        .number.used {
+            background-color: #cccccc;
+        }
+
+        .result.used {
+            background-color: #cccccc;
+            cursor: default;
+        }
+
+        #game-area {
+            padding: 20px;
+        }
+
+        .calculation-line {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .dropzone {
+            border: 2px dashed #ccc;
+            width: 64px;
+            height: 64px;
+            margin: 5px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .operator-button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            font-size: 24px;
+            margin: 5px;
+        }
+
+        .equals-sign {
+            font-size: 24px;
+            margin: 0 5px;
+        }
+
+        #bottom-section {
+            padding: 20px;
+        }
+
+        #timer {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        #solution-section {
+            padding: 20px;
+            font-size: 18px;
+            color: green;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="top-section">
+        <h1>Juego de Cálculo</h1>
+        <div id="numbers-container">
+            <!-- Números iniciales aparecerán aquí -->
+        </div>
+        <div id="target-number">
+            <!-- Número objetivo aparecerá aquí -->
+        </div>
+    </div>
+    <div id="game-area">
+        <!-- Aquí irán las líneas de cálculo -->
+    </div>
+    <div id="bottom-section">
+        <button id="reset-button">Reiniciar Juego</button>
+        <div id="timer">Tiempo restante: <span id="time-remaining">60</span> segundos</div>
+    </div>
+    <div id="solution-section">
+        <!-- La solución o mensaje de felicitación aparecerá aquí -->
+    </div>
+
+    <script>
+        // Código JavaScript
+        let numbers = [];
+        let targetNumber = 0;
+        let timeRemaining = 60;
+        let timerInterval;
+        let calculationLines = [];
+        let gameEnded = false;
+
+        function generateNumbers() {
+            let solutionFound = false;
+            let maxAttempts = 100; // Para evitar bucles infinitos
+            let attempts = 0;
+
+            while (!solutionFound && attempts < maxAttempts) {
+                attempts++;
+                numbers = [];
+
+                // Generar los dos números especiales (10 o 50)
+                let specialNumbers = generateSpecialNumbers();
+                numbers.push(...specialNumbers);
+
+                // Generar los otros cuatro números aleatorios del 1 al 10
+                for (let i = 0; i < 4; i++) {
+                    numbers.push({
+                        value: Math.floor(Math.random() * 10) + 1, // Números del 1 al 10
+                        used: false,
+                        id: `number-${i + 2}` // IDs únicos
+                    });
+                }
+
+                // Ajustar el número objetivo para que sea acorde con los números disponibles
+                targetNumber = Math.floor(Math.random() * 999) + 1; // Número objetivo entre 1 y 999
+
+                // Verificar si existe una solución
+                let solution = findSolution(numbers.map(n => n.value), targetNumber);
+                if (solution) {
+                    solutionFound = true;
+                }
+            }
+
+            if (!solutionFound) {
+                alert('No se pudo encontrar una combinación de números con solución después de varios intentos. Intenta reiniciar el juego.');
+                return;
+            }
+
+            displayNumbers();
+            document.getElementById('solution-section').innerHTML = ''; // Limpiar solución previa
+        }
+
+        function generateSpecialNumbers() {
+            let combinations = [
+                [10, 10],
+                [10, 50],
+                [50, 50]
+            ];
+
+            // Seleccionar aleatoriamente una de las combinaciones
+            let selectedCombination = combinations[Math.floor(Math.random() * combinations.length)];
+
+            // Crear objetos de números especiales
+            let specialNumbers = selectedCombination.map((value, index) => {
+                return {
+                    value: value,
+                    used: false,
+                    id: `special-number-${index}`
+                };
+            });
+
+            return specialNumbers;
+        }
+
+        function displayNumbers() {
+            const numbersContainer = document.getElementById('numbers-container');
+            numbersContainer.innerHTML = '';
+            numbers.forEach(numObj => {
+                const numDiv = document.createElement('div');
+                numDiv.classList.add('number');
+                numDiv.textContent = numObj.value;
+                numDiv.draggable = !numObj.used && !gameEnded;
+                numDiv.id = numObj.id;
+                numDiv.dataset.value = numObj.value;
+                numDiv.addEventListener('dragstart', dragStart);
+
+                if (numObj.used) {
+                    numDiv.classList.add('used');
+                }
+
+                numbersContainer.appendChild(numDiv);
+            });
+
+            const targetDiv = document.getElementById('target-number');
+            targetDiv.innerHTML = `<h2>Número objetivo: ${targetNumber}</h2>`;
+        }
+
+        // Arrastrar y soltar
+        function dragStart(event) {
+            if (gameEnded) return;
+            event.dataTransfer.setData('text/plain', event.target.id);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function dropNumber(event) {
+            event.preventDefault();
+            if (gameEnded) return;
+
+            const id = event.dataTransfer.getData('text');
+            const draggedElement = document.getElementById(id);
+
+            // Evitar que un elemento sea colocado más de una vez
+            if (event.target.classList.contains('dropzone') && event.target.children.length === 0) {
+                const clonedElement = draggedElement.cloneNode(true);
+                clonedElement.id = `${draggedElement.id}-clone-${Math.random()}`;
+                clonedElement.style.margin = '0'; // Asegurar que no tenga margen
+                clonedElement.style.padding = '0'; // Asegurar que no tenga padding
+
+                // **Aquí está la modificación importante**
+                // Hacer que el elemento clonado no sea arrastrable
+                clonedElement.draggable = false;
+
+                event.target.appendChild(clonedElement);
+
+                // Si es un número original, marcarlo como usado
+                if (draggedElement.classList.contains('number') && !draggedElement.classList.contains('result')) {
+                    markNumberAsUsed(id);
+                }
+
+                // Si es un resultado, marcarlo como usado
+                if (draggedElement.classList.contains('result')) {
+                    markResultAsUsed(id);
+                }
+
+                // Añadir eventos al elemento clonado
+                clonedElement.addEventListener('dblclick', function() {
+                    event.target.removeChild(clonedElement);
+                    calculateResult();
+
+                    if (draggedElement.classList.contains('number') && !draggedElement.classList.contains('result')) {
+                        resetNumberUsageFromElement(clonedElement);
+                    }
+
+                    if (draggedElement.classList.contains('result')) {
+                        resetResultUsageFromElement(clonedElement);
+                    }
+
+                    // Eliminar cálculos dependientes
+                    removeDependentCalculations();
+                });
+            }
+
+            calculateResult();
+        }
+
+        function markNumberAsUsed(id) {
+            const numObj = numbers.find(num => num.id === id);
+            if (numObj) {
+                numObj.used = true;
+                displayNumbers();
+            }
+        }
+
+        function resetNumberUsageFromElement(element) {
+            const originalId = element.id.split('-clone')[0];
+            const numObj = numbers.find(num => num.id === originalId);
+            if (numObj) {
+                numObj.used = false;
+                displayNumbers();
+            }
+        }
+
+        function markResultAsUsed(id) {
+            const resultElement = document.getElementById(id);
+            if (resultElement && !resultElement.classList.contains('used')) {
+                resultElement.classList.add('used');
+                resultElement.draggable = false;
+            }
+        }
+
+        function resetResultUsageFromElement(element) {
+            const originalId = element.id.split('-clone')[0];
+            const resultElement = document.getElementById(originalId);
+            if (resultElement) {
+                resultElement.classList.remove('used');
+                resultElement.draggable = true;
+            }
+        }
+
+        function setupGameArea() {
+            const gameArea = document.getElementById('game-area');
+            gameArea.innerHTML = '';
+
+            calculationLines = [];
+
+            // Puedes ajustar el número de líneas si lo deseas
+            for (let i = 0; i < 6; i++) {
+                const line = document.createElement('div');
+                line.classList.add('calculation-line');
+
+                // Primer operando
+                const dropzone1 = document.createElement('div');
+                dropzone1.classList.add('dropzone');
+                dropzone1.addEventListener('dragover', allowDrop);
+                dropzone1.addEventListener('drop', dropNumber);
+                line.appendChild(dropzone1);
+
+                // Operador
+                const operatorButton = document.createElement('button');
+                operatorButton.classList.add('operator-button');
+                operatorButton.textContent = '+';
+                operatorButton.dataset.operator = '+';
+                operatorButton.addEventListener('click', changeOperator);
+                operatorButton.addEventListener('click', calculateResult);
+                line.appendChild(operatorButton);
+
+                // Segundo operando
+                const dropzone2 = document.createElement('div');
+                dropzone2.classList.add('dropzone');
+                dropzone2.addEventListener('dragover', allowDrop);
+                dropzone2.addEventListener('drop', dropNumber);
+                line.appendChild(dropzone2);
+
+                // Signo igual
+                const equalsSign = document.createElement('div');
+                equalsSign.classList.add('equals-sign');
+                equalsSign.textContent = '=';
+                line.appendChild(equalsSign);
+
+                // Resultado
+                const resultZone = document.createElement('div');
+                resultZone.classList.add('result');
+                resultZone.id = `result-${i}-${Math.random()}`;
+                resultZone.draggable = false; // No se puede arrastrar hasta que tenga un valor
+                line.appendChild(resultZone);
+
+                calculationLines.push({
+                    dropzone1: dropzone1,
+                    dropzone2: dropzone2,
+                    operatorButton: operatorButton,
+                    resultZone: resultZone,
+                    used: false // Añadido para rastrear si el resultado ha sido utilizado
+                });
+
+                gameArea.appendChild(line);
+            }
+        }
+
+        function changeOperator(event) {
+            if (gameEnded) return;
+            const operators = ['+', '-', '×', '÷'];
+            let currentOperator = event.target.dataset.operator;
+            let index = operators.indexOf(currentOperator);
+            index = (index + 1) % operators.length;
+            event.target.textContent = operators[index];
+            event.target.dataset.operator = operators[index];
+            calculateResult();
+        }
+
+        function calculateResult() {
+            calculationLines.forEach(line => {
+                const operand1 = getValueFromDropzone(line.dropzone1);
+                const operand2 = getValueFromDropzone(line.dropzone2);
+                const operator = line.operatorButton.dataset.operator;
+                const resultZone = line.resultZone;
+
+                if (operand1 !== null && operand2 !== null) {
+                    let result;
+                    switch (operator) {
+                        case '+':
+                            result = operand1 + operand2;
+                            break;
+                        case '-':
+                            result = operand1 - operand2;
+                            break;
+                        case '×':
+                            result = operand1 * operand2;
+                            break;
+                        case '÷':
+                            if (operand2 !== 0 && operand1 % operand2 === 0) {
+                                result = operand1 / operand2;
+                            } else {
+                                result = null;
+                            }
+                            break;
+                    }
+                    if (result !== null) {
+                        resultZone.textContent = result;
+                        resultZone.dataset.value = result;
+
+                        // Habilitar arrastrar solo si el resultado no ha sido usado
+                        if (!resultZone.classList.contains('used')) {
+                            resultZone.draggable = true;
+                            resultZone.addEventListener('dragstart', dragStart);
+                        }
+
+                        // Verificar si el resultado coincide con el número objetivo
+                        if (result === targetNumber && !gameEnded) {
+                            gameEnded = true;
+                            clearInterval(timerInterval);
+                            showSuccessMessage();
+                        }
+                    } else {
+                        resultZone.textContent = '';
+                        resultZone.dataset.value = '';
+                        resultZone.draggable = false;
+                    }
+                } else {
+                    resultZone.textContent = '';
+                    resultZone.dataset.value = '';
+                    resultZone.draggable = false;
+                }
+            });
+        }
+
+        function getValueFromDropzone(dropzone) {
+            if (dropzone.children.length > 0) {
+                const child = dropzone.children[0];
+                if ((child.classList.contains('number') || child.classList.contains('result')) && !child.classList.contains('used')) {
+                    return parseFloat(child.textContent);
+                }
+            }
+            return null;
+        }
+
+        function startTimer() {
+            timeRemaining = 60;
+            document.getElementById('time-remaining').textContent = timeRemaining;
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('time-remaining').textContent = timeRemaining;
+                if (timeRemaining <= 0 && !gameEnded) {
+                    clearInterval(timerInterval);
+                    alert('¡Tiempo agotado!');
+                    showSolution();
+                }
+            }, 1000);
+        }
+
+        function showSolution() {
+            const solutionSection = document.getElementById('solution-section');
+            const solution = findSolution(numbers.map(n => n.value), targetNumber);
+            if (solution) {
+                solutionSection.innerHTML = `<strong>Una posible solución:</strong>${formatSolutionSteps(solution.steps)}`;
+            } else {
+                solutionSection.innerHTML = `<strong>No se encontró una solución.</strong>`;
+            }
+        }
+
+        function formatSolutionSteps(steps) {
+            let html = '<ol>';
+            steps.forEach(step => {
+                html += `<li>${step}</li>`;
+            });
+            html += '</ol>';
+            return html;
+        }
+
+        function findSolution(numbersArray, target) {
+            const operators = ['+', '-', '*', '/'];
+
+            function helper(nums, exprs, steps) {
+                if (nums.length === 1) {
+                    if (Math.abs(nums[0] - target) < 0.0001) {
+                        return { expression: exprs[0], steps: steps };
+                    } else {
+                        return null;
+                    }
+                }
+
+                for (let i = 0; i < nums.length; i++) {
+                    for (let j = 0; j < nums.length; j++) {
+                        if (i !== j) {
+                            const restNums = nums.filter((_, idx) => idx !== i && idx !== j);
+                            const restExprs = exprs.filter((_, idx) => idx !== i && idx !== j);
+
+                            for (const op of operators) {
+                                let a = nums[i];
+                                let b = nums[j];
+                                let exprA = exprs[i];
+                                let exprB = exprs[j];
+                                let result;
+                                let expr;
+                                let step;
+
+                                if (op === '+') {
+                                    result = a + b;
+                                    expr = `(${exprA} + ${exprB})`;
+                                    step = `${exprA} + ${exprB} = ${result}`;
+                                } else if (op === '-') {
+                                    result = a - b;
+                                    expr = `(${exprA} - ${exprB})`;
+                                    step = `${exprA} - ${exprB} = ${result}`;
+                                } else if (op === '*') {
+                                    result = a * b;
+                                    expr = `(${exprA} × ${exprB})`;
+                                    step = `${exprA} × ${exprB} = ${result}`;
+                                } else if (op === '/') {
+                                    if (b === 0 || a % b !== 0) continue;
+                                    result = a / b;
+                                    expr = `(${exprA} ÷ ${exprB})`;
+                                    step = `${exprA} ÷ ${exprB} = ${result}`;
+                                }
+
+                                const newNums = [result, ...restNums];
+                                const newExprs = [expr, ...restExprs];
+                                const newSteps = [...steps, step];
+
+                                const finalResult = helper(newNums, newExprs, newSteps);
+                                if (finalResult) {
+                                    return finalResult;
+                                }
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+
+            const initialExprs = numbersArray.map(n => n.toString());
+            return helper(numbersArray, initialExprs, []);
+        }
+
+        function showSuccessMessage() {
+            const solutionSection = document.getElementById('solution-section');
+            solutionSection.innerHTML = `<strong>¡Felicidades! Has alcanzado el número objetivo ${targetNumber}.</strong>`;
+            disableAllInteractions();
+        }
+
+        function disableAllInteractions() {
+            // Desactivar drag and drop
+            document.querySelectorAll('.number, .result').forEach(elem => {
+                elem.draggable = false;
+            });
+
+            // Desactivar botones de operador
+            document.querySelectorAll('.operator-button').forEach(button => {
+                button.disabled = true;
+            });
+        }
+
+        function resetGame() {
+            clearInterval(timerInterval);
+            gameEnded = false;
+            generateNumbers();
+            setupGameArea();
+            startTimer();
+        }
+
+        // Función para eliminar cálculos dependientes
+        function removeDependentCalculations() {
+            calculationLines.forEach(line => {
+                const operand1 = getValueFromDropzone(line.dropzone1);
+                const operand2 = getValueFromDropzone(line.dropzone2);
+
+                // Si alguno de los operandos es nulo, eliminar el resultado y resetear
+                if (operand1 === null || operand2 === null) {
+                    // Si el resultado estaba siendo utilizado en otro lugar, eliminarlo
+                    if (line.resultZone.classList.contains('used')) {
+                        // Buscar y resetear todas las instancias donde se usó este resultado
+                        const resultId = line.resultZone.id;
+                        const clonedResults = document.querySelectorAll(`[id^='${resultId}-clone']`);
+                        clonedResults.forEach(clone => {
+                            const parentDropzone = clone.parentElement;
+                            parentDropzone.removeChild(clone);
+                        });
+                        line.resultZone.classList.remove('used');
+                        line.resultZone.draggable = false;
+                    }
+
+                    line.resultZone.textContent = '';
+                    line.resultZone.dataset.value = '';
+                    line.resultZone.draggable = false;
+                }
+            });
+        }
+
+        window.onload = function() {
+            generateNumbers();
+            setupGameArea();
+            startTimer();
+            document.getElementById('reset-button').addEventListener('click', resetGame);
+        };
+    </script>
+</body>
+</html>
