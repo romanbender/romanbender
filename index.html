@@ -60,6 +60,7 @@
 
         .number.used {
             background-color: #cccccc;
+            cursor: default; /* Cambiar el cursor */
         }
 
         .result.used {
@@ -290,8 +291,8 @@
             const targetDiv = document.getElementById('target-number');
             targetDiv.innerHTML = `<h2>Número objetivo: ${targetNumber}</h2>`;
 
-            // Habilitar arrastrar con interact.js
-            interact('.number').draggable({
+            // Habilitar arrastrar con interact.js solo para números no usados
+            interact('.number:not(.used)').draggable({
                 enabled: true,
                 listeners: {
                     start(event) {
@@ -386,7 +387,7 @@
 
             // Habilitar las dropzones con interact.js
             interact('.dropzone').dropzone({
-                accept: '.number, .result',
+                accept: '.number:not(.used), .result:not(.used)',
                 overlap: 0.1, // Reducido para mejorar la imantación
                 ondropactivate: function (event) {
                     event.target.classList.add('drop-active');
@@ -503,7 +504,10 @@
             const numObj = numbers.find(num => num.id === id);
             if (numObj) {
                 numObj.used = true;
-                displayNumbers();
+                displayNumbers(); // Actualizar la visualización
+
+                // Deshabilitar arrastrar en el número usado
+                interact(`#${id}`).draggable(false);
             }
         }
 
@@ -512,7 +516,7 @@
             const numObj = numbers.find(num => num.id === originalId);
             if (numObj) {
                 numObj.used = false;
-                displayNumbers();
+                displayNumbers(); // Actualizar la visualización
             }
         }
 
@@ -521,6 +525,9 @@
             if (resultElement && !resultElement.classList.contains('used')) {
                 resultElement.classList.add('used');
                 resultElement.setAttribute('data-used', 'true');
+
+                // Deshabilitar arrastrar en el resultado usado
+                interact(`#${id}`).draggable(false);
             }
         }
 
@@ -530,6 +537,27 @@
             if (resultElement) {
                 resultElement.classList.remove('used');
                 resultElement.removeAttribute('data-used');
+
+                // Habilitar arrastrar en el resultado
+                interact(resultElement).draggable({
+                    enabled: true,
+                    listeners: {
+                        start(event) {
+                            document.body.style.overflow = 'hidden';
+                        },
+                        move: dragMoveListener,
+                        end(event) {
+                            document.body.style.overflow = 'auto';
+                        }
+                    },
+                    inertia: true,
+                    modifiers: [
+                        interact.modifiers.restrict({
+                            restriction: 'body',
+                            endOnly: true
+                        })
+                    ]
+                });
             }
         }
 
@@ -588,13 +616,6 @@
                                 ]
                             });
                         }
-
-                        // Verificar si el resultado coincide con el número objetivo
-                        if (result === targetNumber && !gameEnded) {
-                            gameEnded = true;
-                            clearInterval(timerInterval);
-                            showSuccessMessage();
-                        }
                     } else {
                         resultZone.textContent = '';
                         resultZone.dataset.value = '';
@@ -602,6 +623,13 @@
                 } else {
                     resultZone.textContent = '';
                     resultZone.dataset.value = '';
+                }
+
+                // Verificar si el resultado coincide con el número objetivo
+                if (parseInt(resultZone.textContent) === targetNumber && !gameEnded) {
+                    gameEnded = true;
+                    clearInterval(timerInterval);
+                    showSuccessMessage();
                 }
             });
         }
