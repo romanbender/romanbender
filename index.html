@@ -7,39 +7,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         /* Estilos CSS */
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+        html, body {
             margin: 0;
             padding: 0;
             overflow-x: hidden; /* Evitar desplazamiento horizontal */
+            height: 100%;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        #top-section, #bottom-section, #game-area, #solution-section {
+            padding: 1vh 2vw;
+            box-sizing: border-box;
         }
 
         #top-section {
             background-color: #f0f0f0;
-            padding: 20px;
         }
 
         #numbers-container, #target-number {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            margin: 10px;
+            margin: 1vh 0;
         }
 
         .number, .result {
             background-color: #ffffff;
-            border: 2px solid #000;
-            border-radius: 5px;
-            margin: 0;
+            border: 0.3vh solid #000;
+            border-radius: 0.5vh;
+            margin: 0.5vh;
             padding: 0;
             cursor: move;
-            width: 60px;
-            height: 60px;
+            width: 12vw;
+            height: 12vw;
+            max-width: 15vh;
+            max-height: 15vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 4vh;
             box-sizing: border-box;
             user-select: none;
             touch-action: none; /* Evitar conflictos en móviles */
@@ -55,21 +68,26 @@
         }
 
         #game-area {
-            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .calculation-line {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 10px 0;
+            margin: 1vh 0;
         }
 
         .dropzone {
-            border: 2px dashed #ccc;
-            width: 64px;
-            height: 64px;
-            margin: 5px;
+            border: 0.3vh dashed #ccc;
+            width: 12vw;
+            height: 12vw;
+            max-width: 15vh;
+            max-height: 15vh;
+            margin: 0.5vh;
             display: inline-flex;
             justify-content: center;
             align-items: center;
@@ -81,12 +99,14 @@
             background-color: #007BFF;
             color: #fff;
             border: none;
-            border-radius: 5px;
-            width: 60px;
-            height: 60px;
+            border-radius: 0.5vh;
+            width: 12vw;
+            height: 12vw;
+            max-width: 15vh;
+            max-height: 15vh;
             cursor: pointer;
-            font-size: 24px;
-            margin: 5px;
+            font-size: 4vh;
+            margin: 0.5vh;
             user-select: none;
             touch-action: manipulation;
         }
@@ -97,25 +117,25 @@
         }
 
         .equals-sign {
-            font-size: 24px;
-            margin: 0 5px;
+            font-size: 4vh;
+            margin: 0 0.5vh;
         }
 
         #bottom-section {
-            padding: 20px;
+            margin-top: auto;
         }
 
         #timer {
-            margin-top: 10px;
-            font-size: 18px;
+            margin-top: 1vh;
+            font-size: 3vh;
         }
 
         #solution-section {
-            padding: 20px;
-            font-size: 18px;
+            padding: 1vh 2vw;
+            font-size: 2.5vh;
             color: green;
             text-align: center;
-            max-width: 600px;
+            max-width: 80vw;
             margin: 0 auto;
         }
 
@@ -123,39 +143,20 @@
             opacity: 0.5;
         }
 
-        /* Estilos para pantallas de hasta 600px de ancho */
-        @media (max-width: 600px) {
-            .number, .result, .operator-button, .dropzone {
-                width: 80px;
-                height: 80px;
-                font-size: 28px;
-            }
+        #reset-button {
+            font-size: 2.5vh;
+            padding: 1vh 2vh;
+            margin-bottom: 1vh;
+        }
 
-            .operator-button {
-                width: 80px;
-                height: 80px;
-            }
+        h1 {
+            font-size: 5vh;
+            margin: 1vh 0;
+        }
 
-            .dropzone {
-                width: 84px; /* Considerando el borde */
-                height: 84px;
-            }
-
-            #timer {
-                font-size: 20px;
-            }
-
-            .equals-sign {
-                font-size: 28px;
-            }
-
-            #top-section h1 {
-                font-size: 24px;
-            }
-
-            #target-number h2 {
-                font-size: 24px;
-            }
+        h2 {
+            font-size: 4vh;
+            margin: 1vh 0;
         }
     </style>
 
@@ -191,6 +192,7 @@
         let timerInterval;
         let calculationLines = [];
         let gameEnded = false;
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
         function generateNumbers() {
             let solutionFound = false;
@@ -423,22 +425,8 @@
                         markResultAsUsed(draggableElement.id);
                     }
 
-                    // Añadir evento para eliminar al hacer doble clic
-                    clonedElement.addEventListener('dblclick', function() {
-                        dropzoneElement.removeChild(clonedElement);
-                        calculateResult();
-
-                        if (draggableElement.classList.contains('number') && !draggableElement.classList.contains('result')) {
-                            resetNumberUsageFromElement(clonedElement);
-                        }
-
-                        if (draggableElement.classList.contains('result')) {
-                            resetResultUsageFromElement(clonedElement);
-                        }
-
-                        // Eliminar cálculos dependientes
-                        removeDependentCalculations();
-                    });
+                    // Añadir evento para eliminar
+                    addRemoveEvent(clonedElement, dropzoneElement);
 
                     // Resetear el elemento original
                     draggableElement.style.transform = 'none';
@@ -448,6 +436,43 @@
                     calculateResult();
                 }
             });
+        }
+
+        function addRemoveEvent(element, dropzoneElement) {
+            if (isTouchDevice) {
+                // Implementar toque prolongado
+                let pressTimer;
+                element.addEventListener('touchstart', function(e) {
+                    pressTimer = setTimeout(() => {
+                        removeElement(element, dropzoneElement);
+                    }, 600);
+                });
+
+                element.addEventListener('touchend', function(e) {
+                    clearTimeout(pressTimer);
+                });
+            } else {
+                // Doble clic para dispositivos no táctiles
+                element.addEventListener('dblclick', function() {
+                    removeElement(element, dropzoneElement);
+                });
+            }
+        }
+
+        function removeElement(element, dropzoneElement) {
+            dropzoneElement.removeChild(element);
+            calculateResult();
+
+            if (element.classList.contains('number') && !element.classList.contains('result')) {
+                resetNumberUsageFromElement(element);
+            }
+
+            if (element.classList.contains('result')) {
+                resetResultUsageFromElement(element);
+            }
+
+            // Eliminar cálculos dependientes
+            removeDependentCalculations();
         }
 
         function changeOperator(event) {
