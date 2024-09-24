@@ -292,7 +292,7 @@
             targetDiv.innerHTML = `<h2>Número objetivo: ${targetNumber}</h2>`;
 
             // Habilitar arrastrar con interact.js solo para números no usados
-            interact('.number:not(.used)').draggable({
+            interact('.number').draggable({
                 enabled: true,
                 listeners: {
                     start(event) {
@@ -312,6 +312,13 @@
                         endOnly: true
                     })
                 ]
+            }).styleCursor(false); // Desactivar cambio de cursor por interact.js
+
+            // Deshabilitar arrastrar en números usados
+            numbers.forEach(numObj => {
+                if (numObj.used) {
+                    interact(`#${numObj.id}`).draggable(false);
+                }
             });
         }
 
@@ -505,9 +512,6 @@
             if (numObj) {
                 numObj.used = true;
                 displayNumbers(); // Actualizar la visualización
-
-                // Deshabilitar arrastrar en el número usado
-                interact(`#${id}`).draggable(false);
             }
         }
 
