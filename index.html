@@ -109,6 +109,11 @@
             margin: 0.5vh;
             user-select: none;
             touch-action: manipulation;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
         }
 
         .operator-button:disabled {
@@ -118,7 +123,14 @@
 
         .equals-sign {
             font-size: 4vh;
-            margin: 0 0.5vh;
+            margin: 0.5vh;
+            width: 12vw;
+            height: 12vw;
+            max-width: 15vh;
+            max-height: 15vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         #bottom-section {
@@ -325,7 +337,6 @@
 
             calculationLines = [];
 
-            // Puedes ajustar el número de líneas si lo deseas
             for (let i = 0; i < 6; i++) {
                 const line = document.createElement('div');
                 line.classList.add('calculation-line');
@@ -367,7 +378,7 @@
                     dropzone2: dropzone2,
                     operatorButton: operatorButton,
                     resultZone: resultZone,
-                    used: false // Añadido para rastrear si el resultado ha sido utilizado
+                    used: false
                 });
 
                 gameArea.appendChild(line);
@@ -376,7 +387,7 @@
             // Habilitar las dropzones con interact.js
             interact('.dropzone').dropzone({
                 accept: '.number, .result',
-                overlap: 0.75,
+                overlap: 0.1, // Reducido para mejorar la imantación
                 ondropactivate: function (event) {
                     event.target.classList.add('drop-active');
                 },
@@ -394,7 +405,6 @@
                     const draggableElement = event.relatedTarget;
                     const dropzoneElement = event.target;
 
-                    // Evitar múltiples elementos en una dropzone
                     if (dropzoneElement.children.length > 0) {
                         return;
                     }
@@ -446,15 +456,18 @@
                     pressTimer = setTimeout(() => {
                         removeElement(element, dropzoneElement);
                     }, 600);
+                    e.preventDefault(); // Evitar comportamiento predeterminado
                 });
 
                 element.addEventListener('touchend', function(e) {
                     clearTimeout(pressTimer);
+                    e.preventDefault(); // Evitar comportamiento predeterminado
                 });
             } else {
                 // Doble clic para dispositivos no táctiles
-                element.addEventListener('dblclick', function() {
+                element.addEventListener('dblclick', function(e) {
                     removeElement(element, dropzoneElement);
+                    e.preventDefault(); // Evitar comportamiento predeterminado
                 });
             }
         }
